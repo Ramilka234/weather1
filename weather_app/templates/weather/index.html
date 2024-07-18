@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+</head>
+<body>
+    <h1>Weather Forecast</h1>
+    <form method="get" action="{% url 'index' %}">
+        <label for="city_name">Enter city name:</label>
+        <input type="text" id="city_name" name="city_name" required>
+        <button type="submit">Get Weather</button>
+    </form>
+    {% if weather_data %}
+        <h2>Weather in {{ weather_data.city }}:</h2>
+        <ul>
+            {% for day in weather_data.daily %}
+                <li>{{ day.date }}: {{ day.temperature }}°C</li>
+            {% endfor %}
+        </ul>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    <script>
+        $(function() {
+            $("#city_name").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{% url 'city-autocomplete' %}",
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2
+            });
+        });
+    </script>
+</body>
+</html>
